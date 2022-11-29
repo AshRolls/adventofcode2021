@@ -31,5 +31,18 @@ public class Day01 : BaseDay
         return new(count.ToString());
     }
 
-    public override ValueTask<string> Solve_2() => new($"Solution to {ClassPrefix} {CalculateIndex()}, part 2");
+    public override ValueTask<string> Solve_2()
+    {
+        int last = _inputInt[0] + _inputInt[1]  + _inputInt[2];
+        int count = 0;
+
+        for (int i = 1; i < _input.Length - 2; i++)
+        {
+            int current = _inputInt[i] + _inputInt[i+1] + _inputInt[i+2];
+            if (current > last) count++;
+            last = current;
+        }
+
+        return new(count.ToString());
+    }
 }
