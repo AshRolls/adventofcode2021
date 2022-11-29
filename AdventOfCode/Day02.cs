@@ -10,8 +10,30 @@ public class Day02 : BaseDay
     }
 
     public override ValueTask<string> Solve_1()
-    {       
-        return new("Not Solved");
+    {
+        int h = 0;
+        int d = 0;
+
+        foreach (string s in _input)
+        {
+            int v = (int)Char.GetNumericValue(s[s.Length - 1]);
+            
+            if (s[0] == 'f')
+            {
+                h += v;
+            }
+            else if (s[0] == 'd')
+            {
+                d += v;
+            }
+            else if (s[0] == 'u')
+            {
+                d -= v;
+            }
+        }
+
+        int res = h * d;
+        return new(res.ToString());
     }
 
     public override ValueTask<string> Solve_2()
