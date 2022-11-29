@@ -3,25 +3,29 @@
 public class Day01 : BaseDay
 {
     private readonly string[] _input;
+    private readonly int[] _inputInt;
 
     public Day01()
     {
         _input = File.ReadAllLines(InputFilePath);
+         _inputInt = new int[_input.Length];
+        for (int i = 0; i<_input.Length; i++)
+        {
+            Int32.TryParse(_input[i], out _inputInt[i]);
+        }
     }
 
     public override ValueTask<string> Solve_1()
     {
 
-        int last;
-        Int32.TryParse(_input[0], out last);
-
+        int last = _inputInt[0];        
         int count = 0;
+
         for (int i=1; i<_input.Length;i++)
         {
-            int current;
-            Int32.TryParse(_input[i], out current);
+            int current = _inputInt[i];            
             if (current > last) count++;
-            Int32.TryParse(_input[i], out last);
+            last = current;            
         }
 
         return new(count.ToString());
