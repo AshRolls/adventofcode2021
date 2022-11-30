@@ -4,37 +4,24 @@ using System.Diagnostics;
 public class Day04 : BaseDay
 {
     private readonly string[] _input;
-    private readonly List<int> _draw;
+    private List<int> _draw;
+    private List<BingoBoard> _boards;
 
     public Day04()
     {
-        _input = File.ReadAllLines(InputFilePath);
-        _draw = parseDraw(_input[0]);        
+        _input = File.ReadAllLines(InputFilePath);                
     }
+
 
     public override ValueTask<string> Solve_1()
     {
-        List<BingoBoard> boards = new List<BingoBoard>();
-
-        bool done = false;
-        int i = 2;
-        while (!done)
-        {
-            string[] data = new string[5];
-            for (int j=0;j<5;j++)
-            {
-                data[j] = _input[i];
-                i++;
-            }
-            BingoBoard b = new BingoBoard(data);
-            boards.Add(b);
-            if (i >= _input.Length) done = true;
-            i++; // for blank line
-        }
-
+        _draw = parseDraw(_input[0]);
+        _boards = parseAllBoards();
+            
+        // process draw
         foreach (int n in _draw)
         {
-            foreach (BingoBoard b in boards)
+            foreach (BingoBoard b in _boards)
             {
                 if (b.updateBoard(n))
                 {
@@ -50,7 +37,51 @@ public class Day04 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
+        _draw = parseDraw(_input[0]);
+        _boards = parseAllBoards();
+
+        int c = 0;
+
+        // process draw
+        foreach (int n in _draw)
+        {
+            foreach (BingoBoard b in _boards)
+            {                
+                if (!b.bingo && b.updateBoard(n))
+                {
+                    // bingo on this board
+                    c++;
+                    if (c == _boards.Count)
+                    {
+                        int unmarkedTotal = b.getUnmarkedTotal();
+                        return new((n * unmarkedTotal).ToString());
+                    }                        
+                }
+            }
+        }
+
         return new("Not Solved");
+    }
+
+    public List<BingoBoard> parseAllBoards()
+    {
+        List<BingoBoard> boards = new List<BingoBoard>();
+        bool done = false;
+        int i = 2;
+        while (!done)
+        {
+            string[] data = new string[5];
+            for (int j = 0; j < 5; j++)
+            {
+                data[j] = _input[i];
+                i++;
+            }
+            BingoBoard b = new BingoBoard(data);
+            boards.Add(b);
+            if (i >= _input.Length) done = true;
+            i++; // for blank line
+        }
+        return boards;
     }
 
     public List<int> parseDraw(string s)
@@ -74,6 +105,7 @@ public struct BingoCell
 public class BingoBoard
 {
     BingoCell[,] board = new BingoCell[5,5];
+    public bool bingo = false;
 
     public BingoBoard(string[] data) 
     {
@@ -123,7 +155,10 @@ public class BingoBoard
                 {
                     data[j] = board[i, j];
                 }
-                if (checkAllFound(data)) return true;
+                if (checkAllFound(data)) {                
+                    bingo = true;
+                    return true;
+                }
             }
 
             // check all rows            
@@ -134,7 +169,11 @@ public class BingoBoard
                 {
                     data[i] = board[i, j];
                 }
-                if (checkAllFound(data)) return true;
+                if (checkAllFound(data))
+                {
+                    bingo = true;
+                    return true;
+                }
             }
         }
         
