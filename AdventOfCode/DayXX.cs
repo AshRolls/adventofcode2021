@@ -1,4 +1,4 @@
-﻿namespace AdventOfCode;
+﻿/*(namespace AdventOfCode;
 
 public class DayXX : BaseDay
 {
@@ -18,4 +18,4 @@ public class DayXX : BaseDay
     {
         return new("Not Solved");
     }
-}
+}*/
