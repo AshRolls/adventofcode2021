@@ -47,6 +47,73 @@ public class Day03 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        return new("Not Solved");
+        List<string> most = new List<string>();
+        List<string> least = new List<string>();
+        foreach (string s in _input)
+        {
+            most.Add(s);
+            least.Add(s);
+        }
+        
+        int i = 0;
+        bool done = false;
+
+        while(!done)
+        {
+            most = getCommon(most, i, true);
+            i++;
+            if (most.Count == 1) done = true;
+        }
+
+        i = 0;
+        done = false;
+
+        while (!done)
+        {
+            least = getCommon(least, i, false);
+            i++;
+            if (least.Count == 1) done = true;
+        }
+
+        int oxy = Convert.ToInt32(new string(most.First()),2);
+        int co2 = Convert.ToInt32(new string(least.First()), 2);
+
+        return new((oxy*co2).ToString());
+    }
+
+    private List<string> getCommon(List<string> data, int i, bool most)
+    {        
+        List<string> zero = new List<string>();
+        List<string> one = new List<string>();
+
+        foreach (string s in data)
+        {
+            if (s[i] == '0') zero.Add(s);
+            else { one.Add(s); }
+        }
+
+        if (most)
+        {
+            if (one.Count >= zero.Count)
+            {
+                return one;
+            }
+            else
+            {
+                return zero;
+            }
+        }
+        else
+        {
+            if (zero.Count <= one.Count)
+            {
+                return zero;
+            }
+            else
+            {
+                return one;
+            }
+        }        
+
     }
 }
