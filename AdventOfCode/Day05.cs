@@ -20,10 +20,10 @@ public class Day05 : BaseDay
                 _floor[i, j] = 0;
             }
         }
-
+        
         foreach (string s in _input)
-        {
-            addLine(s);
+        {            
+            addLine(s, false);
         }
 
         int n = checkOverlaps();
@@ -33,7 +33,23 @@ public class Day05 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        return new("Not Solved");
+        _floor = new int[1000, 1000];
+        for (int i = 0; i < 1000; i++)
+        {
+            for (int j = 0; j < 1000; j++)
+            {
+                _floor[i, j] = 0;
+            }
+        }
+        
+        foreach (string s in _input)
+        {
+            addLine(s, true);
+        }
+
+        int n = checkOverlaps();
+
+        return new(n.ToString());
     }
 
     private struct Point
@@ -42,7 +58,7 @@ public class Day05 : BaseDay
         public int y;
     }
 
-    private void addLine(string line)
+    private void addLine(string line, bool diagonals)
     {
         line = line.Replace(" ->", string.Empty);
         var vals = line.Split(' ');
@@ -80,6 +96,40 @@ public class Day05 : BaseDay
                 addToFloorHorizontal(first, second);
             }
         }
+        else if (diagonals)// diagonal 
+        {
+            if (second.x > first.x)
+            {
+                addToFloorDiagonal(first, second);
+            }
+            else
+            {
+                addToFloorDiagonal(second, first);
+            }
+        }
+    }
+
+    private void addToFloorDiagonal(Point start, Point end)
+    {
+        if (start.y < end.y)
+        {
+            int x = start.x;
+            for (int y = start.y; y <= end.y; y++)
+            {
+                _floor[x, y]++;
+                x++;
+            }
+        }
+        else
+        {
+            int x = start.x;
+            for (int y = start.y; y >= end.y; y--)
+            {
+                _floor[x, y]++;
+                x++;
+            }
+        }
+        
     }
 
     private void addToFloorVertical(Point start, Point end)
