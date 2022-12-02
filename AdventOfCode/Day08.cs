@@ -11,7 +11,19 @@ public class Day08 : BaseDay
 
     public override ValueTask<string> Solve_1()
     {
-        return new("Not Solved");
+        int count = 0;
+
+        foreach (string s in _input)
+        {
+            string output = s.Remove(0, 60);
+            foreach (string s2 in output.Split(' '))
+            {
+                if (s2.Length == 2 || s2.Length == 3 || s2.Length == 4 || s2.Length == 7)
+                    count++;
+            }
+        }
+
+        return new(count.ToString());
     }
 
     public override ValueTask<string> Solve_2()
