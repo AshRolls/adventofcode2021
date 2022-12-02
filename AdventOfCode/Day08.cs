@@ -1,6 +1,6 @@
 ﻿using AoCHelper;
-using System.ComponentModel;
 using System.Diagnostics;
+using System.Security.Cryptography.X509Certificates;
 
 namespace AdventOfCode;
 
@@ -8,11 +8,22 @@ public class Day08 : BaseDay
 {
     private readonly string[] _input;
     private readonly string _allChars;
+    Digit[] _digits = new Digit[10];
 
     public Day08()
     {
         _input = File.ReadAllLines(InputFilePath);
         _allChars = "abcdefg";
+        _digits[0] = new Digit { lit = 6, a = true, b = true, c = true, d = false, e = true, f = true, g = true };
+        _digits[1] = new Digit { lit = 2, a = false, b = false, c = true, d = false, e = false, f = true, g = false };
+        _digits[2] = new Digit { lit = 5, a = true, b = false, c = true, d = false, e = false, f = true, g = false };
+        _digits[3] = new Digit { lit = 5, a = true, b = false, c = true, d = true, e = false, f = true, g = true };
+        _digits[4] = new Digit { lit = 4, a = false, b = true, c = true, d = true, e = false, f = true, g = false };
+        _digits[5] = new Digit { lit = 5, a = true, b = true, c = false, d = true, e = false, f = true, g = true };
+        _digits[6] = new Digit { lit = 6, a = true, b = true, c = false, d = true, e = true, f = true, g = true };
+        _digits[7] = new Digit { lit = 3, a = true, b = false, c = true, d = false, e = false, f = true, g = false };
+        _digits[8] = new Digit { lit = 7, a = true, b = true, c = true, d = true, e = true, f = true, g = true };
+        _digits[9] = new Digit { lit = 6, a = true, b = true, c = true, d = true, e = false, f = true, g = true };
     }
 
     public override ValueTask<string> Solve_1()
@@ -32,200 +43,151 @@ public class Day08 : BaseDay
         return new(count.ToString());
     }
 
-    public override ValueTask<string> Solve_2()
+    private struct Digit
     {
-        //bool[] zero = new bool[7] {true,true,true,false,true,true,true};
-        //bool[] one = new bool[7] {false,false,true,false,false,true,false};
-
-        // missing value from 1 to 7 is A
-        // 3 is the 5 letter value that contains 1
-        // missing value from 4 to 9 (with A) is G
-        // the missing values from the 6 letter values is D or E
-
-        // common value in 1 and 5 is F
-        // missing value from 8 to 6 is A
-        // missing value from 8 to 0 is D
-        // missing value from 8 to 9 is E
-        
-
-        //ABCDEFG
-        //0123456
-
-        foreach (string s in _input)
-        {
-            string output = s.Remove(0, 60);
-            string input = s.Remove(58, s.Length - 58);
-            string[] inputs = input.Split(' ');
-            string[] solved = new string[7];
-            string[] possible = new string[7];            
-            string[] notPossible = new string[7];
-            for (int i = 0; i < 7; i++)
-            {
-                possible[i] = String.Empty;
-                notPossible[i] = String.Empty;
-            }
-
-            // 1
-            string one = inputs.Where(s => s.Length == 2).First().ToString();
-            addNotPossible(ref solved, ref notPossible, ref possible, 0, one);
-            addNotPossible(ref solved, ref notPossible, ref possible, 1, one);
-            addPossible(ref solved, ref possible, ref notPossible, 2, one);
-            addNotPossible(ref solved, ref notPossible, ref possible, 3, one);
-            addNotPossible(ref solved, ref notPossible, ref possible, 4, one);
-            addPossible(ref solved, ref possible, ref notPossible, 5, one);
-            addNotPossible(ref solved, ref notPossible, ref possible, 6, one);
-
-            // 7 
-            string seven = inputs.Where(s => s.Length == 3).First().ToString();
-            addPossible(ref solved, ref possible, ref notPossible, 0, seven);
-            addNotPossible(ref solved, ref notPossible, ref possible, 1, seven);
-            addPossible(ref solved, ref possible, ref notPossible, 2, seven);
-            addNotPossible(ref solved, ref notPossible, ref possible, 3, seven);
-            addNotPossible(ref solved, ref notPossible, ref possible, 4, seven);
-            addPossible(ref solved, ref possible, ref notPossible, 5, seven);
-            addNotPossible(ref solved, ref notPossible, ref possible, 6, seven);            
-
-            // 4
-            string four = inputs.Where(s => s.Length == 4).First().ToString();
-            addNotPossible(ref solved, ref notPossible, ref possible, 0, four);
-            addPossible(ref solved, ref possible, ref notPossible, 1, four);
-            addPossible(ref solved, ref possible, ref notPossible, 2, four);
-            addPossible(ref solved, ref possible, ref notPossible, 3, four);
-            addNotPossible(ref solved, ref notPossible, ref possible, 4, four);
-            addPossible(ref solved, ref possible, ref notPossible, 5, four);
-            addNotPossible(ref solved, ref notPossible, ref possible, 6, four);
-
-            // 8
-            string eight = inputs.Where(s => s.Length == 7).First().ToString();
-            addPossible(ref solved, ref possible, ref notPossible, 0, eight);
-            addPossible(ref solved, ref possible, ref notPossible, 1, eight);
-            addPossible(ref solved, ref possible, ref notPossible, 2, eight);
-            addPossible(ref solved, ref possible, ref notPossible, 3, eight);
-            addPossible(ref solved, ref possible, ref notPossible, 4, eight);
-            addPossible(ref solved, ref possible, ref notPossible, 5, eight);
-            addPossible(ref solved, ref possible, ref notPossible, 6, eight);
-
-
-            //if (inp.Length == 2) // 1
-            //{
-            //    possible[2] += inp;
-            //    possible[5] += inp;
-            //}
-            //else if (inp.Length == 3) // 7
-            //{
-            //    possible[0] += inp;
-            //    possible[2] += inp;
-            //    possible[5] += inp;
-            //}
-            //else if (inp.Length == 4) // 4
-            //{
-            //    possible[1] += inp;
-            //    possible[2] += inp;
-            //    possible[3] += inp;
-            //    possible[5] += inp;
-            //}
-            //else if (inp.Length == 7) // 8
-            //{
-            //    possible[0] += inp;
-            //    possible[1] += inp;
-            //    possible[2] += inp;
-            //    possible[3] += inp;
-            //    possible[4] += inp; 
-            //    possible[5] += inp;
-            //    possible[6] += inp;                    
-            //}
-
-
-            //string[] result = solvePossibles(possible);
-        }
-
-        return new("Not Solved");
+        public int lit;
+        public bool a;
+        public bool b;
+        public bool c;
+        public bool d;
+        public bool e;
+        public bool f;
+        public bool g;        
     }
 
-    private void addPossible(ref string[] solved, ref string[] possible, ref string[] notPossible, int idx, string str)
+    private class PossibleDigit
     {
-        List<string> pList = new List<string>();
-
-        foreach (char c in str)
+        public PossibleDigit()
         {
-            if (!notPossible[idx].Contains(c))
-            {
-                pList.Add(c.ToString());
-            }
+            pa = String.Empty;
+            pb = String.Empty;
+            pc = String.Empty;
+            pd = String.Empty;
+            pe = String.Empty;
+            pf = String.Empty;
+            pg = String.Empty;
+            na = String.Empty;
+            nb = String.Empty;
+            nc = String.Empty;
+            nd = String.Empty;
+            ne = String.Empty;
+            nf = String.Empty;
+            ng = String.Empty;
         }
 
-        if (pList.Count == 1) // solved
-        {
-            string val = pList.First();
-            solve(solved, notPossible, idx, val);
+        public string pa;
+        public string pb;
+        public string pc;
+        public string pd;
+        public string pe;
+        public string pf;
+        public string pg;
+        public string na;
+        public string nb;
+        public string nc;
+        public string nd;
+        public string ne;
+        public string nf;
+        public string ng;
+    }
 
-        }
-        else if (pList.Count > 1) 
+
+    public override ValueTask<string> Solve_2()
+    {        
+        int total = 0;
+        foreach (string s in _input)
         {
-            foreach (string s in pList)
+            string[] outputs = s.Remove(0, 60).Split(' ');
+            string[] inputs = s.Remove(58, s.Length - 58).Split(' ');
+            total += getTotal(inputs, outputs);
+        }
+      
+        return new(total.ToString());
+    }
+
+    private int getTotal(string[] inputs, string[] outputs)
+    {
+        List<string>[] possibles = new List<string>[10];
+        PossibleDigit masterPossible = new PossibleDigit();
+        for (int i = 0; i < 10; i++) possibles[i] = new List<string>();
+
+        solve(inputs, possibles, masterPossible);
+        
+
+        throw new NotImplementedException();
+    }
+    private void solve(string[] inputs, List<String>[] possibles, PossibleDigit master)
+    {
+        foreach (string s in inputs)
+        {
+            for (int i = 0; i < 10; i++)
             {
-                foreach (char c in s)
+                if (s.Length == _digits[i].lit)
                 {
-                    if (!possible[idx].Contains(c)) possible[idx] += s;
+                    possibles[i].Add(s);
                 }
             }
         }
-    }
 
-    private void solve(string[] solved, string[] notPossible, int idx, string val)
-    {
-        solved[idx] = val;
-        for (int i = 0; i < 7; i++)
+        for (int i = 0; i < 10; i++)
         {
-            if (i != idx)
+            if (possibles[i].Count == 1)
             {
-                if (!notPossible[i].Contains(val)) notPossible[i] += val;
-            }
-            else
-            {                                
-                notPossible[i] = _allChars.Replace(val, String.Empty);
+                updatePossible(_digits[i], possibles[i][0], master);
+                
             }
         }
     }
 
-    private void addNotPossible(ref string[] solved, ref string[] notPossible, ref string[] possible, int idx, string str)
+    private void updatePossible(Digit digit, string s, PossibleDigit master)
     {
-        foreach (char c in str)
-        {
-            if (!notPossible[idx].Contains(c)) notPossible[idx] += c;
-            if (possible[idx].Contains(c))
-            {
-                possible[idx] = possible[idx].Replace(c.ToString(), String.Empty);
-            }              
-        }
-        if (notPossible[idx].Length >= 6)
-        {
-            // solved
-            string val = _allChars;
-            foreach(char c in notPossible[idx])
-            {
-                val = val.Replace(c.ToString(), String.Empty);
-            }           
-            solve(solved,notPossible,idx,val); 
-        }
+        if (digit.a) master.pa += getMissingChars(s, master.pa);
+        else master.na += addNotPossible(s);
+
+        if (digit.b) master.pb += getMissingChars(s, master.pb);
+        else master.nb += addNotPossible(s);
+
+        if (digit.c) master.pc += getMissingChars(s, master.pc);
+        else master.nc += addNotPossible(s);
+
+        if (digit.d) master.pd += getMissingChars(s, master.pd);
+        else master.nd += addNotPossible(s);
+
+        if (digit.a) master.pe += getMissingChars(s, master.pe);
+        else master.ne += addNotPossible(s);
+
+        if (digit.f) master.pf += getMissingChars(s, master.pf);
+        else master.nf += addNotPossible(s);
+
+        if (digit.g) master.pg += getMissingChars(s, master.pg);
+        else master.ng += addNotPossible(s);
+
+        //if (_digits[i].b) master.b += getMissingChars(possibles[i][0], master.b);
+        //if (_digits[i].c) master.c += getMissingChars(possibles[i][0], master.c);
+        //if (_digits[i].d) master.d += getMissingChars(possibles[i][0], master.d);
+        //if (_digits[i].e) master.e += getMissingChars(possibles[i][0], master.e);
+        //if (_digits[i].f) master.f += getMissingChars(possibles[i][0], master.f);
+        //if (_digits[i].g) master.g += getMissingChars(possibles[i][0], master.g);
     }
 
-    //private string[] solvePossibles(string[] possible)
-    //{
-    //    string[] result = new string[7];
-    //    // remove duplicates
-    //    //for (int i = 0; i<possible.Length; i++)
-    //    //{
-    //    //    string s = possible[i];
-    //    //    string s2 = String.Empty;
-    //    //    foreach (char c in s)
-    //    //    {
-    //    //        if (s2.Contains(c)) continue;
-    //    //        s2 += c;
-    //    //    }
-    //    //    result[i] = s2;
-    //    //}
+    private string addNotPossible(string s)
+    {
+        string newS = String.Empty;
+        foreach (char c in s)
+        {
+            newS += _allChars.Replace(c.ToString(), String.Empty);
+        }
+        return newS;
+    }
 
-    //    return result;
-    //}
+    private string getMissingChars(string s, string filter)
+    {
+        string newS = String.Empty;
+        foreach(char c in s)
+        {
+            if (!filter.Contains(c)) newS += c;
+        }
+        return newS;
+    }
+
 }
