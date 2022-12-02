@@ -8,23 +8,10 @@ namespace AdventOfCode;
 public class Day08 : BaseDay
 {
     private readonly string[] _input;
-    private readonly string _allChars;
-    Digit[] _digits = new Digit[10];
 
     public Day08()
     {
         _input = File.ReadAllLines(InputFilePath);
-        _allChars = "abcdefg";
-        _digits[0] = new Digit { lit = 6, a = true, b = true, c = true, d = false, e = true, f = true, g = true };
-        _digits[1] = new Digit { lit = 2, a = false, b = false, c = true, d = false, e = false, f = true, g = false };
-        _digits[2] = new Digit { lit = 5, a = true, b = false, c = true, d = false, e = false, f = true, g = false };
-        _digits[3] = new Digit { lit = 5, a = true, b = false, c = true, d = true, e = false, f = true, g = true };
-        _digits[4] = new Digit { lit = 4, a = false, b = true, c = true, d = true, e = false, f = true, g = false };
-        _digits[5] = new Digit { lit = 5, a = true, b = true, c = false, d = true, e = false, f = true, g = true };
-        _digits[6] = new Digit { lit = 6, a = true, b = true, c = false, d = true, e = true, f = true, g = true };
-        _digits[7] = new Digit { lit = 3, a = true, b = false, c = true, d = false, e = false, f = true, g = false };
-        _digits[8] = new Digit { lit = 7, a = true, b = true, c = true, d = true, e = true, f = true, g = true };
-        _digits[9] = new Digit { lit = 6, a = true, b = true, c = true, d = true, e = false, f = true, g = true };
     }
 
     public override ValueTask<string> Solve_1()
@@ -147,11 +134,17 @@ public class Day08 : BaseDay
         }
 
         string output = String.Empty;
-        foreach (string o in outputs)
+        for (int i = 0; i < 10; i++)
+        {            
+            digits[i] = sortStr(digits[i]);
+        }
+
+        for(int j = 0; j < outputs.Length; j++)
         {
+            string o = sortStr(outputs[j]);
             for (int i = 0; i < 10; i++)
             {
-                if (!digits[i].Except(o).Any() && !o.Except(digits[i]).Any())
+                if (digits[i] == o)
                 {
                     output += i.ToString();
                     break;
@@ -160,6 +153,13 @@ public class Day08 : BaseDay
         }
 
         return Int32.Parse(output);
+    }
+
+    private string sortStr(string toSort)
+    {
+        char[] chars = toSort.ToArray();
+        Array.Sort(chars);
+        return new string(chars);
     }
    
 }
