@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,10 +25,12 @@ namespace Day09Vis
         private readonly string[] _input;
         public byte[,] _map;
         private Dictionary<int, Brush> _brushes;
+        private Rectangle[,] _mapRef;
 
         public MainWindow()
         {
             InitializeComponent();
+            _mapRef = new Rectangle[100, 100];
             _brushes = new Dictionary<int, Brush>();
             for (int i = 0; i < 10; i++)
             {
@@ -48,9 +51,7 @@ namespace Day09Vis
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             createMap();
-        }
-
-        
+        }        
 
         private void createMap()
         {
@@ -68,6 +69,7 @@ namespace Day09Vis
                     };
                     Canvas.SetLeft(r, j * 10);
                     Canvas.SetTop(r, i * 10);
+                    _mapRef[i, j] = r;
                     map.Children.Add(r);
                 }
             }
@@ -86,7 +88,11 @@ namespace Day09Vis
                     byte down = _map[i, j + 1];
                     byte left = _map[i - 1, j];
 
-                    if (cur < up && cur < right && cur < down && cur < left) lowPoints.Add(new Pos() { x = i, y = j });
+                    if (cur < up && cur < right && cur < down && cur < left)
+                    {
+                        lowPoints.Add(new Pos() { x = i, y = j });
+                        _mapRef[i-1, j-1].Fill = Brushes.DarkRed;                        
+                    }
                 }
             }
 
@@ -109,21 +115,25 @@ namespace Day09Vis
                         if (upH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 - 1)), upH))
                         {
                             pointsAdded++;
+                            _mapRef[kvp.Key.Item1 - 1, kvp.Key.Item2 - 2].Fill = Brushes.DarkSalmon;
                         }
                         byte rightH = _map[kvp.Key.Item1 + 1, kvp.Key.Item2];
                         if (rightH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 + 1), kvp.Key.Item2), rightH))
                         {
                             pointsAdded++;
+                            _mapRef[kvp.Key.Item1, kvp.Key.Item2 - 1].Fill = Brushes.DarkSalmon;
                         }
                         byte downH = _map[kvp.Key.Item1, kvp.Key.Item2 + 1];
                         if (downH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 + 1)), downH))
                         {
                             pointsAdded++;
+                            _mapRef[kvp.Key.Item1 - 1, kvp.Key.Item2].Fill = Brushes.DarkSalmon;
                         }
                         byte leftH = _map[kvp.Key.Item1 - 1, kvp.Key.Item2];
                         if (leftH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 - 1), kvp.Key.Item2), leftH))
                         {
                             pointsAdded++;
+                            _mapRef[kvp.Key.Item1 - 2, kvp.Key.Item2 - 1].Fill = Brushes.DarkSalmon;
                         }
                     }
 
@@ -157,6 +167,11 @@ namespace Day09Vis
             {
                 return Points.Count();
             }
+        }
+
+        private void runButton_Click(object sender, RoutedEventArgs e)
+        {
+            run();
         }
     }
 

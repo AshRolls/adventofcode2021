@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Day09Vis"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1200" Width="1000" Loaded="Window_Loaded">
-    <Grid Background="Gray">
+        Title="MainWindow" Height="1100" Width="1100" Loaded="Window_Loaded">
+    <Grid Background="Gray" Height="1100" Width="1100">
         <Canvas x:Name="map" Width="1000" Height="1000" Background="Black" />
+        <Button x:Name="runButton" Content="Run" HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Click="runButton_Click"/>
     </Grid>
 </Window>
