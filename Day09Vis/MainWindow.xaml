@@ -1,0 +1,13 @@
+﻿<Window x:Class="Day09Vis.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Day09Vis"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="1100" Width="1100" Loaded="Window_Loaded">
+    <Grid Background="Gray" Height="1100" Width="1100">
+        <Canvas x:Name="map" Width="1000" Height="1000" Background="Black" />
+        <Button x:Name="runButton" Content="Run" HorizontalAlignment="Left" Margin="50,10,0,0" VerticalAlignment="Top" Click="runButton_Click"/>
+    </Grid>
+</Window>
