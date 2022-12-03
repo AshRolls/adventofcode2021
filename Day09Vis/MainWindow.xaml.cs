@@ -22,36 +22,69 @@ namespace Day09Vis
     public partial class MainWindow : Window
     {
         private readonly string[] _input;
+        public byte[,] _map;
+        private Dictionary<int, Brush> _brushes;
 
         public MainWindow()
         {
             InitializeComponent();
+            _brushes = new Dictionary<int, Brush>();
+            for (int i = 0; i < 10; i++)
+            {
+                _brushes.Add(i, new SolidColorBrush(Color.FromRgb((byte)(i * 10), (byte)(i * 10), (byte)(i * 10))));
+            }
             _input = File.ReadAllLines("09.txt");
-        }
-
-        public void run()
-        {
-            byte[,] map = new byte[102, 102];
-
+            _map = new byte[102, 102];
             for (int i = 0; i < 102; i++)
             {
                 for (int j = 0; j < 102; j++)
                 {
-                    if (i == 0 || i == 101 || j == 0 || j == 101) map[i, j] = (byte)9;
-                    else map[i, j] = Byte.Parse(_input[i - 1][j - 1].ToString());
+                    if (i == 0 || i == 101 || j == 0 || j == 101) _map[i, j] = (byte)9;
+                    else _map[i, j] = Byte.Parse(_input[i - 1][j - 1].ToString());
                 }
             }
+        }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            createMap();
+        }
+
+        
+
+        private void createMap()
+        {
+            for (int i=0; i<100; i++)
+            {
+                for (int j=0; j<100; j++)
+                {
+                    Rectangle r = new Rectangle
+                    {
+                        Width = 10,
+                        Height = 10,
+                        Stroke = Brushes.Black,
+                        StrokeThickness = 0.5,
+                        Fill = _brushes[_map[i+1,j+1]]
+                    };
+                    Canvas.SetLeft(r, j * 10);
+                    Canvas.SetTop(r, i * 10);
+                    map.Children.Add(r);
+                }
+            }
+        }
+
+        public void run()
+        {                         
             List<Pos> lowPoints = new List<Pos>();
             for (byte i = 1; i < 101; i++)
             {
                 for (byte j = 1; j < 101; j++)
                 {
-                    byte cur = map[i, j];
-                    byte up = map[i, j - 1];
-                    byte right = map[i + 1, j];
-                    byte down = map[i, j + 1];
-                    byte left = map[i - 1, j];
+                    byte cur = _map[i, j];
+                    byte up = _map[i, j - 1];
+                    byte right = _map[i + 1, j];
+                    byte down = _map[i, j + 1];
+                    byte left = _map[i - 1, j];
 
                     if (cur < up && cur < right && cur < down && cur < left) lowPoints.Add(new Pos() { x = i, y = j });
                 }
@@ -61,7 +94,7 @@ namespace Day09Vis
             List<Basin> basins = new List<Basin>();
             foreach (Pos p in lowPoints)
             {
-                Basin b = new Basin(p.x, p.y, map[p.x, p.y]);
+                Basin b = new Basin(p.x, p.y, _map[p.x, p.y]);
                 basins.Add(b);
 
                 int pointsAdded = 0;
@@ -72,22 +105,22 @@ namespace Day09Vis
                     pointsAddedLast = pointsAdded;
                     foreach (KeyValuePair<Tuple<byte, byte>, byte> kvp in b.Points.ToList())
                     {
-                        byte upH = map[kvp.Key.Item1, kvp.Key.Item2 - 1];
+                        byte upH = _map[kvp.Key.Item1, kvp.Key.Item2 - 1];
                         if (upH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 - 1)), upH))
                         {
                             pointsAdded++;
                         }
-                        byte rightH = map[kvp.Key.Item1 + 1, kvp.Key.Item2];
+                        byte rightH = _map[kvp.Key.Item1 + 1, kvp.Key.Item2];
                         if (rightH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 + 1), kvp.Key.Item2), rightH))
                         {
                             pointsAdded++;
                         }
-                        byte downH = map[kvp.Key.Item1, kvp.Key.Item2 + 1];
+                        byte downH = _map[kvp.Key.Item1, kvp.Key.Item2 + 1];
                         if (downH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 + 1)), downH))
                         {
                             pointsAdded++;
                         }
-                        byte leftH = map[kvp.Key.Item1 - 1, kvp.Key.Item2];
+                        byte leftH = _map[kvp.Key.Item1 - 1, kvp.Key.Item2];
                         if (leftH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 - 1), kvp.Key.Item2), leftH))
                         {
                             pointsAdded++;
@@ -109,8 +142,10 @@ namespace Day09Vis
             public Dictionary<Tuple<byte, byte>, byte> Points;
             public Basin(byte lowx, byte lowy, byte lowHeight)
             {
-                Points = new Dictionary<Tuple<byte, byte>, byte>();
-                Points.Add(new Tuple<byte, byte>(lowx, lowy), lowHeight);
+                Points = new Dictionary<Tuple<byte, byte>, byte>
+                {
+                    { new Tuple<byte, byte>(lowx, lowy), lowHeight }
+                };
             }
 
             public bool getBasinContainsPos(byte x, byte y)

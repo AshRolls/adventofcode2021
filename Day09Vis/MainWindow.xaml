@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Day09Vis"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1200" Width="1000">
+        Title="MainWindow" Height="1200" Width="1000" Loaded="Window_Loaded">
     <Grid Background="Gray">
-        <Canvas Width="1000" Height="1000" VerticalAlignment="Bottom" Background="Black"/>
+        <Canvas x:Name="map" Width="1000" Height="1000" Background="Black" />
     </Grid>
 </Window>
