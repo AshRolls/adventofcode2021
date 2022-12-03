@@ -112,25 +112,28 @@ public class Day09 : BaseDay
             do
             {
                 pointsAddedLast = pointsAdded;
-                byte upH = map[p.x, p.y - 1];
-                if (upH != 9 && b.Points.TryAdd(new Tuple<byte,byte>(p.x, (byte)(p.y - 1)),upH))
-                {
-                    pointsAdded++;
-                }
-                byte rightH = map[p.x + 1, p.y];
-                if (rightH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(p.x + 1), p.y), rightH))
-                {
-                    pointsAdded++;
-                }
-                byte downH = map[p.x, p.y + 1];
-                if (downH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(p.x, (byte)(p.y + 1)), downH))
-                {
-                    pointsAdded++;
-                }
-                byte leftH = map[p.x - 1, p.y];
-                if (leftH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(p.x - 1), p.y), leftH))
-                {
-                    pointsAdded++;
+                foreach (KeyValuePair<Tuple<byte,byte>,byte> kvp in b.Points.ToList())
+                {                    
+                    byte upH = map[kvp.Key.Item1, kvp.Key.Item2 - 1];
+                    if (upH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 - 1)), upH))
+                    {
+                        pointsAdded++;
+                    }
+                    byte rightH = map[kvp.Key.Item1 + 1, kvp.Key.Item2];
+                    if (rightH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 + 1), kvp.Key.Item2), rightH))
+                    {
+                        pointsAdded++;
+                    }
+                    byte downH = map[kvp.Key.Item1, kvp.Key.Item2 + 1];
+                    if (downH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 + 1)), downH))
+                    {
+                        pointsAdded++;
+                    }
+                    byte leftH = map[kvp.Key.Item1 - 1, kvp.Key.Item2];
+                    if (leftH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 - 1), kvp.Key.Item2), leftH))
+                    {
+                        pointsAdded++;
+                    }
                 }
 
             } while (pointsAdded > pointsAddedLast);
@@ -140,7 +143,7 @@ public class Day09 : BaseDay
 
         sizes.Sort();
         sizes.Reverse();
-        int top3 = sizes.Take(3).Sum();
+        int top3 = sizes[0] * sizes[1] * sizes[2];
         return new(top3.ToString());
     }
 }
