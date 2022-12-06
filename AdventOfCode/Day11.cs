@@ -25,7 +25,15 @@ public class Day11 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        return new("Not Solved");
+        createGrid();
+
+        int steps = 0;
+        do
+        {
+            steps++;
+        } while (doStep() != 100);
+
+        return new(steps.ToString());
     }
 
     private int doStep()
