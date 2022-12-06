@@ -17,9 +17,34 @@ public class Day12 : BaseDay
 
     public override ValueTask<string> Solve_1()
     {
-        _caves = new Dictionary<string, Cave>();
+        extractLinks();
 
-        foreach (string s in _input) 
+        Cave cur = _caves["start"];
+        List<Cave> visited = new List<Cave>();
+        List<List<Cave>> paths = new List<List<Cave>>();
+
+        moveToCave(cur, visited, paths, 1);
+
+        return new(paths.Count().ToString());
+    }
+
+    public override ValueTask<string> Solve_2()
+    {
+        extractLinks();
+
+        Cave cur = _caves["start"];
+        List<Cave> visited = new List<Cave>();
+        List<List<Cave>> paths = new List<List<Cave>>();
+
+        moveToCave(cur, visited, paths, 2);
+
+        return new(paths.Count().ToString());
+    }
+
+    private void extractLinks()
+    {
+        _caves = new Dictionary<string, Cave>();
+        foreach (string s in _input)
         {
             var link = s.Split('-');
             if (!_caves.ContainsKey(link[0])) _caves.Add(link[0], new Cave(link[0]));
@@ -27,17 +52,9 @@ public class Day12 : BaseDay
             _caves[link[0]].Links.Add(_caves[link[1]]);
             _caves[link[1]].Links.Add(_caves[link[0]]);
         }
-
-        Cave cur = _caves["start"];
-        List<Cave> visited = new List<Cave>();        
-        List<List<Cave>> paths = new List<List<Cave>>();
-        
-        moveToCave(cur, visited, paths);        
-        
-        return new(paths.Count().ToString());
     }
 
-    private void moveToCave(Cave cur, List<Cave> visited, List<List<Cave>> paths)
+    private void moveToCave(Cave cur, List<Cave> visited, List<List<Cave>> paths, int smallCaveVisits)
     {                
         List<Cave> clonedVisited = visited.ToList();
         Stack<Cave> options = new Stack<Cave>();
@@ -53,8 +70,10 @@ public class Day12 : BaseDay
             {
                 if (c.IsBigCave)
                     options.Push(c);
-                else if (!clonedVisited.Contains(c))
-                    options.Push(c);
+                else if (clonedVisited.Where(x => x.Equals(c)).Count() <= smallCaveVisits - 1)
+                {
+                    if (c != _caves["start"]) options.Push(c);
+                }
             }
             while (options.Any())
             {
@@ -64,15 +83,11 @@ public class Day12 : BaseDay
                 //    p += c.Name + "-";
                 //}
                 //Console.Out.WriteLine(p);
-                moveToCave(options.Pop(), clonedVisited, paths);
+                moveToCave(options.Pop(), clonedVisited, paths, smallCaveVisits);
             }
         }       
     }
 
-    public override ValueTask<string> Solve_2()
-    {
-        return new("Not Solved");
-    }
     private class Cave
     {
         public Cave(string name)
