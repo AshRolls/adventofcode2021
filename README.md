@@ -1,4 +1,4 @@
-# Advent of Code 2022
+# Advent of Code 2021
 
 [![Stars](https://img.shields.io/badge/stars%20⭐-18-yellow)](https://adventofcode.com/2022/stats)
 

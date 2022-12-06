@@ -29,16 +29,17 @@ namespace Day09Vis
         public byte[,] _map;
         private Dictionary<int, Brush> _brushes;
         private Rectangle[,] _mapRef;
-        private ConcurrentQueue<Tuple<int, int>> _queue;
+        private Rectangle _checkRef;
+        private ConcurrentQueue<Tuple<int, int, bool>> _queue;
         public DispatcherTimer _dTimer;
-        const int CreationDelay = 10;
+        const int CreationDelay = 1;
 
         public MainWindow()
         {
             InitializeComponent();
             _mapRef = new Rectangle[100, 100];
             _brushes = new Dictionary<int, Brush>();
-            _queue = new ConcurrentQueue<Tuple<int, int>>();
+            _queue = new ConcurrentQueue<Tuple<int, int, bool>>();
             for (int i = 0; i < 10; i++)
             {
                 _brushes.Add(i, new SolidColorBrush(Color.FromRgb((byte)(i * 10), (byte)(i * 10), (byte)(i * 10))));
@@ -80,6 +81,20 @@ namespace Day09Vis
                     map.Children.Add(r);
                 }
             }
+
+            Rectangle c = new Rectangle
+            {
+                Width = 10,
+                Height = 10,
+                Stroke = Brushes.Black,
+                StrokeThickness = 0.5,
+                Fill = Brushes.White,
+                Visibility = Visibility.Hidden
+            };
+            Canvas.SetLeft(c,0);
+            Canvas.SetTop(c,0);
+            _checkRef = c;
+            map.Children.Add(c);
         }
 
         public void run()
@@ -98,7 +113,11 @@ namespace Day09Vis
                     if (cur < up && cur < right && cur < down && cur < left)
                     {
                         lowPoints.Add(new Pos() { x = i, y = j });
-                        _queue.Enqueue(new Tuple<int, int>(i - 1, j - 1));                       
+                        _queue.Enqueue(new Tuple<int, int, bool>(i - 1, j - 1, true));
+                    }
+                    else
+                    {
+                        queueTileTemp(i - 1, j - 1);
                     }
                 }
             }
@@ -118,31 +137,30 @@ namespace Day09Vis
                     pointsAddedLast = pointsAdded;
                     foreach (KeyValuePair<Tuple<byte, byte>, byte> kvp in b.Points.ToList())
                     {
+                        queueTileTemp(kvp.Key.Item1 - 1, kvp.Key.Item2 - 1);
                         byte upH = _map[kvp.Key.Item1, kvp.Key.Item2 - 1];
                         if (upH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 - 1)), upH))
                         {
                             pointsAdded++;
-                            queueTile(kvp.Key.Item1 - 1, kvp.Key.Item2 - 2);                            
+                            queueTilePerm(kvp.Key.Item1 - 1, kvp.Key.Item2 - 2);                            
                         }
                         byte rightH = _map[kvp.Key.Item1 + 1, kvp.Key.Item2];
                         if (rightH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 + 1), kvp.Key.Item2), rightH))
                         {
                             pointsAdded++;
-                            queueTile(kvp.Key.Item1, kvp.Key.Item2 - 1);
+                            queueTilePerm(kvp.Key.Item1, kvp.Key.Item2 - 1);
                         }
                         byte downH = _map[kvp.Key.Item1, kvp.Key.Item2 + 1];
                         if (downH != 9 && b.Points.TryAdd(new Tuple<byte, byte>(kvp.Key.Item1, (byte)(kvp.Key.Item2 + 1)), downH))
                         {
                             pointsAdded++;
-                            queueTile(kvp.Key.Item1 - 1, kvp.Key.Item2);
-                            //_mapRef[kvp.Key.Item1 - 1, kvp.Key.Item2].Fill = Brushes.DarkSalmon;
+                            queueTilePerm(kvp.Key.Item1 - 1, kvp.Key.Item2);
                         }
                         byte leftH = _map[kvp.Key.Item1 - 1, kvp.Key.Item2];
                         if (leftH != 9 && b.Points.TryAdd(new Tuple<byte, byte>((byte)(kvp.Key.Item1 - 1), kvp.Key.Item2), leftH))
                         {
                             pointsAdded++;
-                            queueTile(kvp.Key.Item1 - 2, kvp.Key.Item2 - 1);
-                            //_mapRef[kvp.Key.Item1 - 2, kvp.Key.Item2 - 1].Fill = Brushes.DarkSalmon;
+                            queueTilePerm(kvp.Key.Item1 - 2, kvp.Key.Item2 - 1);
                         }
                     }
 
@@ -150,9 +168,14 @@ namespace Day09Vis
             }
         }
 
-        public void queueTile(int x, int y)
+        public void queueTilePerm(int x, int y)
         {
-            _queue.Enqueue(new Tuple<int, int>(x, y));
+            _queue.Enqueue(new Tuple<int, int, bool>(x, y, true));
+        }
+
+        public void queueTileTemp(int x, int y)
+        {
+            _queue.Enqueue(new Tuple<int, int, bool>(x, y, false));
         }
 
         public struct Pos
@@ -185,10 +208,18 @@ namespace Day09Vis
 
         private void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            Tuple<int, int> t;
+            Tuple<int, int, bool> t;
             if (_queue.TryDequeue(out t))
             {
-                _mapRef[t.Item1, t.Item2].Fill = Brushes.DarkRed;
+                if (t.Item3)
+                {
+                    _mapRef[t.Item1, t.Item2].Fill = Brushes.DarkRed;
+                }
+                else
+                {
+                    Canvas.SetTop(_checkRef, t.Item1 * 10);
+                    Canvas.SetLeft(_checkRef, t.Item2 * 10);                                        
+                }
             }
         }
 
@@ -197,6 +228,7 @@ namespace Day09Vis
             _dTimer = new DispatcherTimer { Interval = new TimeSpan(0, 0, 0, 0, CreationDelay) };
             _dTimer.Tick += DispatcherTimer_Tick;
             _dTimer.Start();
+            _checkRef.Visibility = Visibility.Visible;
             Task.Run(() => run());
         }
 
