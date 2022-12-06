@@ -45,9 +45,11 @@ public class Day10 : BaseDay
         }
 
         List<long> scores = new List<long>();
+        openC = new Stack<char>();
         foreach (string s in incomplete)
         {
-            openC = openChunkStack(0, 0, new Stack<char>(), s);
+            openC.Clear();
+            openChunkStack(0, 0, s, openC);
             scores.Add(calcScore(openC));
         }
         scores.Sort();
@@ -92,21 +94,21 @@ public class Day10 : BaseDay
         return points;
     }
 
-    private static Stack<char> openChunkStack(int p, int i, Stack<char> openC, string line)
+    private void openChunkStack(int p, int i, string line, Stack<char> openC)
     {
         char c = line[i];
         if (_pairs.ContainsKey(c))
         {
             //Console.Out.WriteLine("Open " + c);
             openC.Push(c);
-            if (i < line.Length - 1) return openChunkStack(p, i + 1, openC, line);            
+            if (i < line.Length - 1) openChunkStack(p, i + 1, line, openC);            
         }
         else 
         {
             //Console.Out.WriteLine("Close " + c);
             openC.Pop();
-            if (i < line.Length - 1) return openChunkStack(p, i + 1, openC, line);
+            if (i < line.Length - 1) openChunkStack(p, i + 1, line, openC);
         }
-        return openC;
+        return;
     }
 }
