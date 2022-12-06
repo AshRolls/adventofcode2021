@@ -8,7 +8,8 @@ namespace AdventOfCode;
 public class Day12 : BaseDay
 {
     private readonly string[] _input;
-    private Dictionary<string, Cave> _caves; 
+    private Dictionary<string, Cave> _caves;
+    private long _paths;
 
     public Day12()
     {
@@ -20,12 +21,17 @@ public class Day12 : BaseDay
         extractLinks();
 
         Cave cur = _caves["start"];
-        List<Cave> visited = new List<Cave>();
-        List<List<Cave>> paths = new List<List<Cave>>();
+        _paths = 0;
 
-        moveToCave(cur, visited, paths, 1);
+        Dictionary<string, int> visited = new Dictionary<string, int>();
+        foreach (String s in _caves.Keys)
+        {
+            visited.Add(s, 0);
+        }
 
-        return new(paths.Count().ToString());
+        moveToCave(cur, visited, 1);
+
+        return new(_paths.ToString());
     }
 
     public override ValueTask<string> Solve_2()
@@ -33,12 +39,17 @@ public class Day12 : BaseDay
         extractLinks();
 
         Cave cur = _caves["start"];
-        List<Cave> visited = new List<Cave>();
-        List<List<Cave>> paths = new List<List<Cave>>();
+        _paths = 0;
 
-        moveToCave(cur, visited, paths, 2);
+        Dictionary<string,int> visited = new Dictionary<string,int>();
+        foreach(String s in _caves.Keys)
+        {
+            visited.Add(s, 0);
+        }
 
-        return new(paths.Count().ToString());
+        moveToCave(cur, visited, 2);
+        
+        return new(_paths.ToString());
     }
 
     private void extractLinks()
@@ -54,38 +65,34 @@ public class Day12 : BaseDay
         }
     }
 
-    private void moveToCave(Cave cur, List<Cave> visited, List<List<Cave>> paths, int smallCaveVisits)
-    {                
-        List<Cave> clonedVisited = visited.ToList();
+    private void moveToCave(Cave cur, Dictionary<string,int> visited, int maxSmallCaves)
+    {
+        Dictionary<string,int> clonedVisited = new Dictionary<string, int>(visited);
         Stack<Cave> options = new Stack<Cave>();
-        clonedVisited.Add(cur);
+        clonedVisited[cur.Name]++;
+        if (!cur.IsBigCave && maxSmallCaves == 2 && clonedVisited[cur.Name] >= maxSmallCaves) maxSmallCaves = 1;
 
         if (cur == _caves["end"])
         {
-            paths.Add(clonedVisited);
+            //Console.Out.WriteLine(ToDebugString<string,int>(clonedVisited) + " " + maxSmallCaves);
+            _paths++;
         }
         else
-        {
+        {            
             foreach (Cave c in cur.Links)
-            {
+            {                
                 if (c.IsBigCave)
                     options.Push(c);
-                else if (clonedVisited.Where(x => x.Equals(c)).Count() <= smallCaveVisits - 1)
+                else                 
                 {
-                    if (c != _caves["start"]) options.Push(c);
+                    if (clonedVisited[c.Name] <= maxSmallCaves - 1 && c != _caves["start"]) options.Push(c);
                 }
             }
             while (options.Any())
-            {
-                //string p = String.Empty;
-                //foreach (Cave c in clonedVisited)
-                //{
-                //    p += c.Name + "-";
-                //}
-                //Console.Out.WriteLine(p);
-                moveToCave(options.Pop(), clonedVisited, paths, smallCaveVisits);
+            {                                             
+                moveToCave(options.Pop(), clonedVisited, maxSmallCaves);
             }
-        }       
+        }
     }
 
     private class Cave
@@ -102,4 +109,11 @@ public class Day12 : BaseDay
         public List<Cave> Links { get; set; }
     }
 
+    public string ToDebugString<TKey, TValue>(IDictionary<TKey, TValue> dictionary)
+    {
+        return "{" + string.Join(",", dictionary.Select(kv => kv.Key + "=" + kv.Value).ToArray()) + "}";
+    }
 }
+
+
+
