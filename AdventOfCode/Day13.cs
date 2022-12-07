@@ -46,8 +46,8 @@ public class Day13 : BaseDay
             string row = String.Empty;
             for (int x = 0; x < maxX; x++)
             {
-                if (grid[x, y]) row += '#';
-                else row += '.';
+                if (grid[x, y]) row += '\u2588';
+                else row += ' ';
             }
             Console.Out.WriteLine(row);
         }
