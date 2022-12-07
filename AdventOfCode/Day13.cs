@@ -23,7 +23,36 @@ public class Day13 : BaseDay
 
     public override ValueTask<string> Solve_2()
     {
-        return new("Not Solved");
+        List<Dot> dots = new List<Dot>();
+        List<Fold> folds = new List<Fold>();
+        parseData(dots, folds);
+
+        foreach (Fold f in folds)
+        {
+            doFold(f, ref dots);
+        }
+
+        int maxX = dots.Select(x => x.X).Max() + 1;
+        int maxY = dots.Select(x => x.Y).Max() + 1;
+
+        bool[,] grid = new bool[maxX, maxY];
+        foreach(Dot d in dots)
+        {
+            grid[d.X, d.Y] = true;
+        }
+
+        for (int y = 0; y < maxY; y++)
+        {
+            string row = String.Empty;
+            for (int x = 0; x < maxX; x++)
+            {
+                if (grid[x, y]) row += '#';
+                else row += '.';
+            }
+            Console.Out.WriteLine(row);
+        }
+
+        return new("CONSOLE");
     }
 
     private void parseData(List<Dot> dots, List<Fold> folds)
